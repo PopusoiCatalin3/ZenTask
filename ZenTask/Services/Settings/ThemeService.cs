@@ -3,6 +3,8 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Animation;
 using System.Diagnostics;
+using System.Windows.Threading;
+using ZenTask.Utils;
 
 namespace ZenTask.Services.Settings
 {
@@ -146,6 +148,135 @@ namespace ZenTask.Services.Settings
         public void ToggleTheme()
         {
             SetTheme(CurrentTheme == ThemeType.Light ? ThemeType.Dark : ThemeType.Light);
+        }
+    }
+
+    public class ThemeDetector
+    {
+        private readonly ThemeService _themeService;
+        private readonly DispatcherTimer _timer;
+        private string _lastThemeSetting;
+        private const string ThemeSettingName = "ThemeSetting";
+
+        public ThemeDetector(ThemeService themeService)
+        {
+            _themeService = themeService;
+            _lastThemeSetting = SettingsHelper.GetSetting(ThemeSettingName, "Light");
+
+            // Apply initial theme
+            ApplyThemeSetting(_lastThemeSetting);
+
+            // Set up timer to check for changes
+            _timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(2)
+            };
+            _timer.Tick += Timer_Tick;
+            _timer.Start();
+        }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            // Check for changes on a background thread
+            Task.Run(() => CheckForThemeChanges());
+        }
+
+        private async Task CheckForThemeChanges()
+        {
+            try
+            {
+                // Read current theme setting
+                string currentSetting = SettingsHelper.GetSetting(ThemeSettingName, "Light");
+
+                // If theme setting has changed, apply new theme
+                if (currentSetting != _lastThemeSetting)
+                {
+                    _lastThemeSetting = currentSetting;
+
+                    // Switch to UI thread to apply theme
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        ApplyThemeSetting(currentSetting);
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error checking theme changes: {ex.Message}");
+            }
+        }
+
+        private void ApplyThemeSetting(string themeSetting)
+        {
+            try
+            {
+                // Convert string setting to theme type
+                ThemeType theme = themeSetting.Equals("Dark", StringComparison.OrdinalIgnoreCase)
+                    ? ThemeType.Dark
+                    : ThemeType.Light;
+
+                // Only change if different from current
+                if (_themeService.CurrentTheme != theme)
+                {
+                    _themeService.SetTheme(theme);
+                    System.Diagnostics.Debug.WriteLine($"Theme changed to {theme}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error applying theme: {ex.Message}");
+            }
+        }
+
+        public void Stop()
+        {
+            _timer.Stop();
+        }
+    }
+
+    public static class SettingsHelper
+    {
+        /// <summary>
+        /// Safely reads a setting value with error handling
+        /// </summary>
+        public static T GetSetting<T>(string settingName, T defaultValue)
+        {
+            try
+            {
+                var properties = Properties.Settings.Default;
+                object value = properties[settingName];
+
+                if (value != null && value is T typedValue)
+                {
+                    return typedValue;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error reading setting {settingName}: {ex.Message}");
+            }
+
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// Asynchronously saves a setting value
+        /// </summary>
+        public static async Task SaveSettingAsync<T>(string settingName, T value)
+        {
+            await Task.Run(() =>
+            {
+                try
+                {
+                    var properties = Properties.Settings.Default;
+                    properties[settingName] = value;
+                    properties.Save();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error saving setting {settingName}: {ex.Message}");
+                }
+            });
         }
     }
 }

@@ -48,42 +48,42 @@ namespace ZenTask.Views
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             // Animate error message when it appears
-            if (e.PropertyName == "HasError" && _viewModel.HasError)
-            {
-                var errorBorder = FindVisualChild<Border>(this, border =>
-                    border.Background != null &&
-                    border.Background.ToString().Contains("#3C1C1C"));
+            //if (e.PropertyName == "HasError" && _viewModel.HasError)
+            //{
+            //    var errorBorder = FindVisualChild<Border>(this, border =>
+            //        border.Background != null &&
+            //        border.Background.ToString().Contains("#3C1C1C"));
 
-                if (errorBorder != null)
-                {
-                    errorBorder.Shake();
-                }
-            }
+            //    if (errorBorder != null)
+            //    {
+            //        errorBorder.Shake();
+            //    }
+            //}
 
-            // Animate processing indicator
-            if (e.PropertyName == "IsProcessing")
-            {
-                var processingBorder = FindVisualChild<Border>(this, border =>
-                    border.Visibility == Visibility.Visible &&
-                    border.DataContext == _viewModel &&
-                    VisualTreeHelper.GetChildrenCount(border) > 0 &&
-                    VisualTreeHelper.GetChild(border, 0) is StackPanel panel &&
-                    panel.Children.Count > 0 &&
-                    panel.Children[0] is TextBlock text &&
-                    text.Text == "Processing...");
+            //// Animate processing indicator
+            //if (e.PropertyName == "IsProcessing")
+            //{
+            //    var processingBorder = FindVisualChild<Border>(this, border =>
+            //        border.Visibility == Visibility.Visible &&
+            //        border.DataContext == _viewModel &&
+            //        VisualTreeHelper.GetChildrenCount(border) > 0 &&
+            //        VisualTreeHelper.GetChild(border, 0) is StackPanel panel &&
+            //        panel.Children.Count > 0 &&
+            //        panel.Children[0] is TextBlock text &&
+            //        text.Text == "Processing...");
 
-                if (processingBorder != null)
-                {
-                    if (_viewModel.IsProcessing)
-                    {
-                        processingBorder.FadeIn(0.3);
-                    }
-                    else
-                    {
-                        processingBorder.FadeOut(0.3);
-                    }
-                }
-            }
+            //    if (processingBorder != null)
+            //    {
+            //        if (_viewModel.IsProcessing)
+            //        {
+            //            processingBorder.FadeIn(0.3);
+            //        }
+            //        else
+            //        {
+            //            processingBorder.FadeOut(0.3);
+            //        }
+            //    }
+            //}
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)

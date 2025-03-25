@@ -7,17 +7,12 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <!--  Base theme and components  -->
-                <ResourceDictionary Source="/ZenTask;component/Resources/Themes/ZenTaskTheme.xaml" />
+                <ResourceDictionary Source="/ZenTask;component/Resources/Themes/BaseTheme.xaml" />
                 <ResourceDictionary Source="/ZenTask;component/Resources/Themes/ThemesManager.xaml" />
                 <ResourceDictionary Source="/ZenTask;component/Resources/Components/CustomScrollBar.xaml" />
                 <ResourceDictionary Source="/ZenTask;component/Resources/Components/ZenTaskComboBox.xaml" />
                 <ResourceDictionary Source="/ZenTask;component/Resources/Animations/ZenTaskAnimations.xaml" />
-                <ResourceDictionary Source="/ZenTask;component/Resources/Animations/ViewTransitionAnimations.xaml" />
                 <ResourceDictionary Source="/ZenTask;component/Resources/ConvertersDictionary/ConvertersDictionary.xaml" />
-
-                <ResourceDictionary Source="/Resources/Animations/TaskStatusTransitionAnimation.xaml" />
-
-                <ResourceDictionary Source="/Resources/Animations/TaskSkeletonAnimation.xaml" />
 
                 <!--  Add Light theme by default - will be swapped by ThemeService  -->
                 <ResourceDictionary Source="/Resources/Themes/LightTheme.xaml" />

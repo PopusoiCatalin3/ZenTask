@@ -1,8 +1,37 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:converters="clr-namespace:ZenTask.Utils.Converters">
-    
-    <converters:BoolToVisibilityExtension x:Key="BoolToVisibility"/>
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:ZenTask.Utils.Converters">
+
+
+    <converters:BooleanConverters x:Key="BoolToVisibility" />
+    <converters:BooleanConverters x:Key="BoolToErrorBrush" />
+    <converters:BooleanConverters x:Key="BoolToThickness" />
+    <converters:BooleanConverters x:Key="BoolToStrikethrough" />
+    <converters:BooleanConverters x:Key="BoolToDropShadow" />
+    <converters:BooleanConverters x:Key="BoolToFontWeight" />
+    <converters:VisibilityConverters x:Key="StringToVisibility" />
+    <converters:VisibilityConverters x:Key="NullToVisibility" />
+    <converters:VisibilityConverters x:Key="NumberToVisibility" />
+    <converters:VisibilityConverters x:Key="StatusToVisibility" />
+    <converters:VisibilityConverters x:Key="BoolToVisibilityExtension" />
+    <converters:TaskConverters x:Key="PriorityToBrush" />
+    <converters:TaskConverters x:Key="StatusToBrush" />
+    <converters:TaskConverters x:Key="StatusToString" />
+    <converters:TaskConverters x:Key="PriorityToIsChecked" />
+    <converters:EntityConverters x:Key="CategoryColorToBrush" />
+    <converters:EntityConverters x:Key="CategoryIdToName" />
+    <converters:EntityConverters x:Key="StringToBrush" />
+    <converters:EntityConverters x:Key="TagIdToBrush" />
+    <converters:EntityConverters x:Key="TagIdToName" />
+    <converters:EntityConverters x:Key="TagIdToIsSelected" />
+    <converters:EntityConverters x:Key="TaskBorderBrush" />
+    <converters:UIStateConverters x:Key="EditModeTitle" />
+    <converters:UIStateConverters x:Key="EditModeButton" />
+    <converters:UIStateConverters x:Key="EditModeCommand" />
+
+
+    <!--<converters:BoolToVisibilityExtension x:Key="BoolToVisibility"/>
     <converters:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
     <converters:StatusToBrushConverter x:Key="StatusToBrushConverter"/>
     <converters:StatusToStringConverter x:Key="StatusToStringConverter"/>
@@ -29,5 +58,5 @@
     <converters:CategoryColorConverter x:Key="CategoryColorConverter"/>
     <converters:CategoryNameConverter x:Key="CategoryNameConverter"/>
     <converters:TaskBorderBrushConverter x:Key="TaskBorderBrushConverter"/>
-    <converters:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter"/>
+    <converters:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter"/>-->
 </ResourceDictionary>

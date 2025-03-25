@@ -18,6 +18,8 @@
   <ItemGroup>
     <Folder Include="Database\" />
     <Folder Include="Config\" />
+    <Folder Include="Resources\Animations\" />
+    <Folder Include="Resources\Themes\" />
   </ItemGroup>
 
   <ItemGroup>

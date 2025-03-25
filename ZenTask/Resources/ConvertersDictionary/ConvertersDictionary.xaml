@@ -3,60 +3,48 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="clr-namespace:ZenTask.Utils.Converters">
 
+    <!--  Boolean converters for different conversion types  -->
+    <converters:BooleanConverter x:Key="BoolToVisibility" Type="Visibility" />
+    <converters:BooleanConverter
+        x:Key="BoolToVisibility_Inverted"
+        Invert="True"
+        Type="Visibility" />
+    <converters:BooleanConverter x:Key="BoolToErrorBrush" Type="ErrorBrush" />
+    <converters:BooleanConverter x:Key="BoolToThickness" Type="Thickness" />
+    <converters:BooleanConverter x:Key="BoolToStrikethrough" Type="Strikethrough" />
+    <converters:BooleanConverter x:Key="BoolToDropShadow" Type="DropShadow" />
+    <converters:BooleanConverter x:Key="BoolToFontWeight" Type="FontWeight" />
 
-    <converters:BooleanConverters x:Key="BoolToVisibility" />
-    <converters:BooleanConverters x:Key="BoolToErrorBrush" />
-    <converters:BooleanConverters x:Key="BoolToThickness" />
-    <converters:BooleanConverters x:Key="BoolToStrikethrough" />
-    <converters:BooleanConverters x:Key="BoolToDropShadow" />
-    <converters:BooleanConverters x:Key="BoolToFontWeight" />
-    <converters:VisibilityConverters x:Key="StringToVisibility" />
-    <converters:VisibilityConverters x:Key="NullToVisibility" />
-    <converters:VisibilityConverters x:Key="NumberToVisibility" />
-    <converters:VisibilityConverters x:Key="StatusToVisibility" />
-    <converters:VisibilityConverters x:Key="BoolToVisibilityExtension" />
-    <converters:TaskConverters x:Key="PriorityToBrush" />
-    <converters:TaskConverters x:Key="StatusToBrush" />
-    <converters:TaskConverters x:Key="StatusToString" />
-    <converters:TaskConverters x:Key="PriorityToIsChecked" />
-    <converters:EntityConverters x:Key="CategoryColorToBrush" />
-    <converters:EntityConverters x:Key="CategoryIdToName" />
-    <converters:EntityConverters x:Key="StringToBrush" />
-    <converters:EntityConverters x:Key="TagIdToBrush" />
-    <converters:EntityConverters x:Key="TagIdToName" />
-    <converters:EntityConverters x:Key="TagIdToIsSelected" />
-    <converters:EntityConverters x:Key="TaskBorderBrush" />
-    <converters:UIStateConverters x:Key="EditModeTitle" />
-    <converters:UIStateConverters x:Key="EditModeButton" />
-    <converters:UIStateConverters x:Key="EditModeCommand" />
+    <!--  Entity converters for tasks, categories, and tags  -->
+    <converters:EntityConverter x:Key="StatusToBrush" Type="TaskStatusToBrush" />
+    <converters:EntityConverter x:Key="StatusToString" Type="TaskStatusToString" />
+    <converters:EntityConverter x:Key="PriorityToBrush" Type="PriorityToBrush" />
+    <converters:EntityConverter x:Key="CategoryColorToBrush" Type="CategoryColorToBrush" />
+    <converters:EntityConverter x:Key="StringToBrush" Type="CategoryColorToBrush" />
+    <converters:EntityConverter x:Key="TagIdToBrush" Type="TagIdToBrush" />
+    <converters:EntityConverter x:Key="TagIdToName" Type="TagIdToName" />
+    <converters:EntityConverter x:Key="TagIdToIsSelected" Type="TagIdToIsSelected" />
 
+    <!--  Special converters with both enum type and priority parameters  -->
+    <converters:BooleanConverter x:Key="PriorityToIsChecked_Low" Type="FontWeight" />
+    <converters:BooleanConverter x:Key="PriorityToIsChecked_Medium" Type="FontWeight" />
+    <converters:BooleanConverter x:Key="PriorityToIsChecked_High" Type="FontWeight" />
+    <converters:BooleanConverter x:Key="PriorityToIsChecked_Urgent" Type="FontWeight" />
 
-    <!--<converters:BoolToVisibilityExtension x:Key="BoolToVisibility"/>
-    <converters:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
-    <converters:StatusToBrushConverter x:Key="StatusToBrushConverter"/>
-    <converters:StatusToStringConverter x:Key="StatusToStringConverter"/>
-    <converters:BoolToStrikethroughConverter x:Key="BoolToStrikethrough"/>
-    <converters:StringToVisibilityConverter x:Key="StringToVisibility"/>
-    <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-    <converters:NumberToVisibilityConverter x:Key="NumberToVisibilityConverter"/>
-    <converters:StatusToVisibilityConverter x:Key="StatusToVisibilityConverter"/>
-    <converters:EditModeTitleConverter x:Key="EditModeTitleConverter"/>
-    <converters:EditModeButtonConverter x:Key="EditModeButtonConverter"/>
-    <converters:EditModeCommandConverter x:Key="EditModeCommandConverter"/>
-    <converters:TagIdToBrushConverter x:Key="TagIdToBrushConverter"/>
-    <converters:TagIdToNameConverter x:Key="TagIdToNameConverter"/>
-    <converters:TagIdToIsSelectedConverter x:Key="TagIdToIsSelectedConverter"/>
-    <converters:StatusZeroConverter x:Key="StatusZeroConverter"/>
-    <converters:StatusToDoActiveConverter x:Key="StatusToDoActiveConverter"/>
-    <converters:StatusInProgressActiveConverter x:Key="StatusInProgressActiveConverter"/>
-    <converters:StatusCompletedActiveConverter x:Key="StatusCompletedActiveConverter"/>
-    <converters:PriorityToIsCheckedConverter x:Key="PriorityToIsCheckedConverter"/>
-    <converters:StringToBrushConverter x:Key="StringToBrushConverter"/>
-    <converters:BoolToDropShadowConverter x:Key="BoolToDropShadowConverter"/>
-    <converters:BoolToErrorBrushConverter x:Key="BoolToErrorBrushConverter"/>
-    <converters:BoolToThicknessConverter x:Key="BoolToThicknessConverter"/>
-    <converters:CategoryColorConverter x:Key="CategoryColorConverter"/>
-    <converters:CategoryNameConverter x:Key="CategoryNameConverter"/>
-    <converters:TaskBorderBrushConverter x:Key="TaskBorderBrushConverter"/>
-    <converters:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter"/>-->
+    <!--  Multi-value converter for task-specific properties  -->
+    <converters:TaskMultiConverter x:Key="TaskBorderBrush" Type="TaskBorderBrush" />
+
+    <!--  Status filter converters - these require custom instances based on logic  -->
+    <converters:BooleanConverter x:Key="StatusZeroConverter" Type="Visibility" />
+    <converters:BooleanConverter x:Key="StatusToDoActiveConverter" Type="Visibility" />
+    <converters:BooleanConverter x:Key="StatusInProgressActiveConverter" Type="Visibility" />
+    <converters:BooleanConverter x:Key="StatusCompletedActiveConverter" Type="Visibility" />
+
+    <!--  Markup extension for use in XAML  -->
+    <converters:BoolToVisibilityExtension x:Key="BoolToVisibilityExtension" />
+
+    <!--  Naming pattern converters for edit modes  -->
+    <converters:BooleanConverter x:Key="EditModeTitle" Type="Visibility" />
+    <converters:BooleanConverter x:Key="EditModeButton" Type="Visibility" />
+    <converters:BooleanConverter x:Key="EditModeCommand" Type="Visibility" />
 </ResourceDictionary>

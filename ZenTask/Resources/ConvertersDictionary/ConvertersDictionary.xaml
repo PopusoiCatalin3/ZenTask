@@ -1,0 +1,33 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:ZenTask.Utils.Converters">
+    
+    <converters:BoolToVisibilityExtension x:Key="BoolToVisibility"/>
+    <converters:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
+    <converters:StatusToBrushConverter x:Key="StatusToBrushConverter"/>
+    <converters:StatusToStringConverter x:Key="StatusToStringConverter"/>
+    <converters:BoolToStrikethroughConverter x:Key="BoolToStrikethrough"/>
+    <converters:StringToVisibilityConverter x:Key="StringToVisibility"/>
+    <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    <converters:NumberToVisibilityConverter x:Key="NumberToVisibilityConverter"/>
+    <converters:StatusToVisibilityConverter x:Key="StatusToVisibilityConverter"/>
+    <converters:EditModeTitleConverter x:Key="EditModeTitleConverter"/>
+    <converters:EditModeButtonConverter x:Key="EditModeButtonConverter"/>
+    <converters:EditModeCommandConverter x:Key="EditModeCommandConverter"/>
+    <converters:TagIdToBrushConverter x:Key="TagIdToBrushConverter"/>
+    <converters:TagIdToNameConverter x:Key="TagIdToNameConverter"/>
+    <converters:TagIdToIsSelectedConverter x:Key="TagIdToIsSelectedConverter"/>
+    <converters:StatusZeroConverter x:Key="StatusZeroConverter"/>
+    <converters:StatusToDoActiveConverter x:Key="StatusToDoActiveConverter"/>
+    <converters:StatusInProgressActiveConverter x:Key="StatusInProgressActiveConverter"/>
+    <converters:StatusCompletedActiveConverter x:Key="StatusCompletedActiveConverter"/>
+    <converters:PriorityToIsCheckedConverter x:Key="PriorityToIsCheckedConverter"/>
+    <converters:StringToBrushConverter x:Key="StringToBrushConverter"/>
+    <converters:BoolToDropShadowConverter x:Key="BoolToDropShadowConverter"/>
+    <converters:BoolToErrorBrushConverter x:Key="BoolToErrorBrushConverter"/>
+    <converters:BoolToThicknessConverter x:Key="BoolToThicknessConverter"/>
+    <converters:CategoryColorConverter x:Key="CategoryColorConverter"/>
+    <converters:CategoryNameConverter x:Key="CategoryNameConverter"/>
+    <converters:TaskBorderBrushConverter x:Key="TaskBorderBrushConverter"/>
+    <converters:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter"/>
+</ResourceDictionary>

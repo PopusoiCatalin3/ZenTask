@@ -1,0 +1,19 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="PrimaryColor">#24d4c4</Color>
+    <Color x:Key="PrimaryLightColor">#92f0e6</Color>
+    <Color x:Key="PrimaryDarkColor">#008c7e</Color>
+    <Color x:Key="AccentColor">#24d4c4</Color>
+
+    <Color x:Key="BackgroundColor">#F5F5F5</Color>
+    <Color x:Key="SurfaceColor">#FFFFFF</Color>
+    <Color x:Key="TextPrimaryColor">#212121</Color>
+    <Color x:Key="TextSecondaryColor">#757575</Color>
+    <Color x:Key="BorderColor">#DDDDDD</Color>
+    <Color x:Key="InputBackgroundColor">#FFFFFF</Color>
+
+    <Color x:Key="ErrorColor">#D32F2F</Color>
+    <Color x:Key="WarningColor">#FF9800</Color>
+    <Color x:Key="SuccessColor">#4CAF50</Color>
+    <Color x:Key="InfoColor">#2196F3</Color>
+
+</ResourceDictionary>

@@ -1,0 +1,1050 @@
+﻿<UserControl x:Class="ZenTask.Views.TaskView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:ZenTask.Views"
+             xmlns:converters="clr-namespace:ZenTask.Utils.Converters"
+             xmlns:util="clr-namespace:ZenTask.Utils"
+             xmlns:models="clr-namespace:ZenTask.Models"
+             mc:Ignorable="d"
+             d:DesignHeight="700"
+             d:DesignWidth="1000">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <Style x:Key="SearchBoxStyle"
+                   TargetType="TextBox">
+                <Setter Property="Height"
+                        Value="40" />
+                <Setter Property="Padding"
+                        Value="32,5,5,5" />
+                <Setter Property="Background"
+                        Value="{StaticResource SurfaceBrush}" />
+                <Setter Property="Foreground"
+                        Value="{StaticResource TextBrush}" />
+                <Setter Property="BorderBrush"
+                        Value="{StaticResource BorderBrush}" />
+                <Setter Property="BorderThickness"
+                        Value="1" />
+                <Setter Property="VerticalContentAlignment"
+                        Value="Center" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border x:Name="border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    CornerRadius="20">
+                                <Grid>
+                                    <TextBlock x:Name="placeholder"
+                                               Text="🔍 Caută sarcini..."
+                                               Margin="12,0,0,0"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Visibility="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, 
+                                                           Converter={StaticResource StringToVisibility}, ConverterParameter=invert}" />
+                                    <ScrollViewer x:Name="PART_ContentHost"
+                                                  Margin="30,0,0,0"
+                                                  Padding="{TemplateBinding Padding}"
+                                                  VerticalAlignment="Center"
+                                                  Background="Transparent"
+                                                  BorderThickness="0" />
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver"
+                                         Value="True">
+                                    <Setter TargetName="border"
+                                            Property="BorderBrush"
+                                            Value="{StaticResource TealBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused"
+                                         Value="True">
+                                    <Setter TargetName="border"
+                                            Property="BorderBrush"
+                                            Value="{StaticResource TealBrush}" />
+                                    <Setter TargetName="border"
+                                            Property="BorderThickness"
+                                            Value="1.5" />
+                                    <Setter TargetName="placeholder"
+                                            Property="Visibility"
+                                            Value="Collapsed" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Stiluri pentru card-ul de sarcină -->
+            <Style x:Key="TaskCardStyle"
+                   TargetType="Border">
+                <Setter Property="Background"
+                        Value="{StaticResource CardBrush}" />
+                <Setter Property="BorderBrush"
+                        Value="{StaticResource BorderBrush}" />
+                <Setter Property="BorderThickness"
+                        Value="1" />
+                <Setter Property="CornerRadius"
+                        Value="10" />
+                <Setter Property="Margin"
+                        Value="0,5,5,10" />
+                <Setter Property="Padding"
+                        Value="18" />
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect ShadowDepth="2"
+                                          Direction="315"
+                                          BlurRadius="5"
+                                          Opacity="0.2" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="RenderTransformOrigin"
+                        Value="0.5,0.5" />
+                <Setter Property="RenderTransform">
+                    <Setter.Value>
+                        <TransformGroup>
+                            <ScaleTransform />
+                            <TranslateTransform />
+                        </TransformGroup>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <EventTrigger RoutedEvent="Border.Loaded">
+                        <BeginStoryboard Storyboard="{StaticResource TaskCardEnterAnimation}" />
+                    </EventTrigger>
+                    <Trigger Property="IsMouseOver"
+                             Value="True">
+                        <Setter Property="Background"
+                                Value="{StaticResource SurfaceBrush}" />
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect ShadowDepth="3"
+                                                  Direction="315"
+                                                  BlurRadius="8"
+                                                  Opacity="0.3" />
+                            </Setter.Value>
+                        </Setter>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- Stiluri pentru filter button -->
+            <Style x:Key="FilterButtonStyle"
+                   TargetType="Button">
+                <Setter Property="Background"
+                        Value="{StaticResource SurfaceBrush}" />
+                <Setter Property="Foreground"
+                        Value="{StaticResource TextBrush}" />
+                <Setter Property="BorderBrush"
+                        Value="{StaticResource BorderBrush}" />
+                <Setter Property="BorderThickness"
+                        Value="1" />
+                <Setter Property="Height"
+                        Value="38" />
+                <Setter Property="Padding"
+                        Value="15,0" />
+                <Setter Property="Margin"
+                        Value="5,0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="19">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver"
+                                         Value="True">
+                                    <Setter TargetName="border"
+                                            Property="Background"
+                                            Value="{StaticResource BackgroundHoverBrush}" />
+                                    <Setter TargetName="border"
+                                            Property="BorderBrush"
+                                            Value="{StaticResource TealBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsPressed"
+                                         Value="True">
+                                    <Setter TargetName="border"
+                                            Property="Background"
+                                            Value="{StaticResource NavyBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled"
+                                         Value="False">
+                                    <Setter TargetName="border"
+                                            Property="Background"
+                                            Value="{StaticResource TealBrush}" />
+                                    <Setter TargetName="border"
+                                            Property="BorderBrush"
+                                            Value="{StaticResource TealBrush}" />
+                                    <Setter Property="Foreground"
+                                            Value="{StaticResource TextBrush}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Stiluri pentru action buttons -->
+            <Style x:Key="ActionButtonStyle"
+                   TargetType="Button">
+                <Setter Property="Background"
+                        Value="{StaticResource TealBrush}" />
+                <Setter Property="Foreground"
+                        Value="{StaticResource TextBrush}" />
+                <Setter Property="BorderThickness"
+                        Value="0" />
+                <Setter Property="Height"
+                        Value="40" />
+                <Setter Property="Padding"
+                        Value="20,0" />
+                <Setter Property="FontSize"
+                        Value="14" />
+                <Setter Property="FontWeight"
+                        Value="SemiBold" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="20">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <EventTrigger RoutedEvent="Button.Click">
+                                    <BeginStoryboard Storyboard="{StaticResource ButtonClickAnimation}" />
+                                </EventTrigger>
+                                <Trigger Property="IsMouseOver"
+                                         Value="True">
+                                    <Setter TargetName="border"
+                                            Property="Background"
+                                            Value="{StaticResource GreenBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsPressed"
+                                         Value="True">
+                                    <Setter TargetName="border"
+                                            Property="Background"
+                                            Value="{StaticResource PurpleBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled"
+                                         Value="False">
+                                    <Setter TargetName="border"
+                                            Property="Background"
+                                            Value="{StaticResource DisabledBrush}" />
+                                    <Setter Property="Foreground"
+                                            Value="{StaticResource DisabledTextBrush}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Stiluri pentru cancel buttons -->
+            <Style x:Key="CancelButtonStyle"
+                   TargetType="Button"
+                   BasedOn="{StaticResource ActionButtonStyle}">
+                <Setter Property="Background"
+                        Value="{StaticResource SurfaceBrush}" />
+                <Setter Property="BorderBrush"
+                        Value="{StaticResource BorderBrush}" />
+                <Setter Property="BorderThickness"
+                        Value="1" />
+            </Style>
+
+            <!-- Stiluri pentru icon buttons -->
+            <Style x:Key="IconButtonStyle"
+                   TargetType="Button">
+                <Setter Property="Background"
+                        Value="Transparent" />
+                <Setter Property="BorderThickness"
+                        Value="0" />
+                <Setter Property="Foreground"
+                        Value="{StaticResource TextBrush}" />
+                <Setter Property="Padding"
+                        Value="5" />
+                <Setter Property="Margin"
+                        Value="2" />
+                <Setter Property="Width"
+                        Value="32" />
+                <Setter Property="Height"
+                        Value="32" />
+                <Setter Property="Cursor"
+                        Value="Hand" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="16"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <EventTrigger RoutedEvent="Button.Click">
+                                    <BeginStoryboard Storyboard="{StaticResource ButtonClickAnimation}" />
+                                </EventTrigger>
+                                <Trigger Property="IsMouseOver"
+                                         Value="True">
+                                    <Setter TargetName="border"
+                                            Property="Background"
+                                            Value="{StaticResource BackgroundHoverBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsPressed"
+                                         Value="True">
+                                    <Setter TargetName="border"
+                                            Property="Background"
+                                            Value="{StaticResource SurfaceBrush}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Stiluri pentru etichete (tags) -->
+            <Style x:Key="TagStyle"
+                   TargetType="Border">
+                <Setter Property="CornerRadius"
+                        Value="12" />
+                <Setter Property="Padding"
+                        Value="8,3" />
+                <Setter Property="Margin"
+                        Value="3" />
+            </Style>
+
+            <!-- Stiluri pentru input text -->
+            <Style x:Key="TaskInputStyle"
+                   TargetType="TextBox">
+                <Setter Property="Padding"
+                        Value="12,8" />
+                <Setter Property="Margin"
+                        Value="0,0,0,15" />
+                <Setter Property="Background"
+                        Value="{StaticResource InputBackgroundBrush}" />
+                <Setter Property="Foreground"
+                        Value="{StaticResource TextBrush}" />
+                <Setter Property="BorderBrush"
+                        Value="{StaticResource BorderBrush}" />
+                <Setter Property="BorderThickness"
+                        Value="1" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border x:Name="border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="6">
+                                <ScrollViewer x:Name="PART_ContentHost"
+                                              Padding="{TemplateBinding Padding}" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver"
+                                         Value="True">
+                                    <Setter TargetName="border"
+                                            Property="BorderBrush"
+                                            Value="{StaticResource TealBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused"
+                                         Value="True">
+                                    <Setter TargetName="border"
+                                            Property="BorderBrush"
+                                            Value="{StaticResource TealBrush}" />
+                                    <Setter TargetName="border"
+                                            Property="BorderThickness"
+                                            Value="1.5" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Stil pentru DatePicker -->
+            <Style x:Key="TaskDatePickerStyle"
+                   TargetType="DatePicker">
+                <Setter Property="Padding"
+                        Value="10,5" />
+                <Setter Property="Height"
+                        Value="40" />
+                <Setter Property="Margin"
+                        Value="0,0,0,15" />
+                <Setter Property="Background"
+                        Value="{StaticResource InputBackgroundBrush}" />
+                <Setter Property="Foreground"
+                        Value="{StaticResource TextBrush}" />
+                <Setter Property="BorderBrush"
+                        Value="{StaticResource BorderBrush}" />
+                <Setter Property="BorderThickness"
+                        Value="1" />
+                <Setter Property="VerticalContentAlignment"
+                        Value="Center" />
+                <Setter Property="Language"
+                        Value="ro-RO" />
+            </Style>
+
+            <!-- Stil pentru ComboBox -->
+            <Style x:Key="TaskComboBoxStyle"
+                   TargetType="ComboBox">
+                <Setter Property="Padding"
+                        Value="10,5" />
+                <Setter Property="Height"
+                        Value="40" />
+                <Setter Property="Margin"
+                        Value="0,0,0,15" />
+                <Setter Property="Background"
+                        Value="{StaticResource InputBackgroundBrush}" />
+                <Setter Property="Foreground"
+                        Value="{StaticResource TextBrush}" />
+                <Setter Property="BorderBrush"
+                        Value="{StaticResource BorderBrush}" />
+                <Setter Property="BorderThickness"
+                        Value="1" />
+                <Setter Property="VerticalContentAlignment"
+                        Value="Center" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ComboBox">
+                            <Grid>
+                                <ToggleButton x:Name="ToggleButton"
+                                              Background="{TemplateBinding Background}"
+                                              BorderBrush="{TemplateBinding BorderBrush}"
+                                              BorderThickness="{TemplateBinding BorderThickness}"
+                                              Padding="{TemplateBinding Padding}"
+                                              Focusable="false"
+                                              IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border x:Name="Border"
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <ContentPresenter Grid.Column="0"
+                                                                      HorizontalAlignment="Left"
+                                                                      VerticalAlignment="Center" />
+                                                    <Path x:Name="Arrow"
+                                                          Grid.Column="1"
+                                                          Fill="{StaticResource TextSecondaryBrush}"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"
+                                                          Data="M 0 0 L 6 6 L 12 0"
+                                                          Margin="0,0,10,0" />
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver"
+                                                         Value="true">
+                                                    <Setter TargetName="Border"
+                                                            Property="BorderBrush"
+                                                            Value="{StaticResource TealBrush}" />
+                                                    <Setter TargetName="Arrow"
+                                                            Property="Fill"
+                                                            Value="{StaticResource TealBrush}" />
+                                                </Trigger>
+                                                <Trigger Property="IsChecked"
+                                                         Value="true">
+                                                    <Setter TargetName="Border"
+                                                            Property="BorderBrush"
+                                                            Value="{StaticResource TealBrush}" />
+                                                    <Setter TargetName="Border"
+                                                            Property="BorderThickness"
+                                                            Value="1.5" />
+                                                    <Setter TargetName="Arrow"
+                                                            Property="Fill"
+                                                            Value="{StaticResource TealBrush}" />
+                                                    <Setter TargetName="Arrow"
+                                                            Property="Data"
+                                                            Value="M 0 6 L 6 0 L 12 6" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                </ToggleButton>
+                                <ContentPresenter x:Name="ContentPresenter"
+                                                  Content="{TemplateBinding SelectionBoxItem}"
+                                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                  ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Left"
+                                                  Margin="12,0,0,0" />
+                                <Popup x:Name="Popup"
+                                       Placement="Bottom"
+                                       IsOpen="{TemplateBinding IsDropDownOpen}"
+                                       AllowsTransparency="True"
+                                       Focusable="False"
+                                       PopupAnimation="Slide">
+                                    <Grid x:Name="DropDown"
+                                          SnapsToDevicePixels="True"
+                                          MinWidth="{TemplateBinding ActualWidth}"
+                                          MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                        <Border x:Name="DropDownBorder"
+                                                Background="{StaticResource SurfaceBrush}"
+                                                BorderBrush="{StaticResource BorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="6"
+                                                Margin="0,3,0,0">
+                                            <ScrollViewer SnapsToDevicePixels="True"
+                                                          Style="{StaticResource ZenTaskScrollViewerStyle}">
+                                                <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                                            </ScrollViewer>
+                                        </Border>
+                                    </Grid>
+                                </Popup>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ItemContainerStyle">
+                    <Setter.Value>
+                        <Style TargetType="ComboBoxItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ComboBoxItem">
+                                        <Border x:Name="Border"
+                                                Background="Transparent"
+                                                Padding="12,8">
+                                            <ContentPresenter />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsHighlighted"
+                                                     Value="true">
+                                                <Setter TargetName="Border"
+                                                        Property="Background"
+                                                        Value="{StaticResource BackgroundHoverBrush}" />
+                                            </Trigger>
+                                            <Trigger Property="IsSelected"
+                                                     Value="true">
+                                                <Setter TargetName="Border"
+                                                        Property="Background"
+                                                        Value="{StaticResource NavyBrush}" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Template pentru SubTask items -->
+            <DataTemplate x:Key="SubTaskTemplate">
+                <Grid Margin="0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <CheckBox Grid.Column="0"
+                              IsChecked="{Binding IsCompleted}"
+                              VerticalAlignment="Center"
+                              Margin="0,0,10,0"
+                              Command="{Binding DataContext.ToggleSubTaskCommand, 
+                              RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              CommandParameter="{Binding Id}" />
+
+                    <TextBox Grid.Column="1"
+                             Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             Padding="0"
+                             TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToStrikethrough}}" />
+
+                    <Button Grid.Column="2"
+                            Content="✕"
+                            Style="{StaticResource IconButtonStyle}"
+                            Command="{Binding DataContext.RemoveSubTaskCommand, 
+                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding DisplayOrder}" />
+                </Grid>
+            </DataTemplate>
+
+            <!-- Animație pentru tranziție între panouri -->
+            <Storyboard x:Key="PanelSwitchAnimation">
+                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                 From="0"
+                                 To="1"
+                                 Duration="0:0:0.3">
+                    <DoubleAnimation.EasingFunction>
+                        <PowerEase EasingMode="EaseOut" />
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+                <ThicknessAnimation Storyboard.TargetProperty="Margin"
+                                    From="20,0,0,0"
+                                    To="0,0,0,0"
+                                    Duration="0:0:0.3">
+                    <ThicknessAnimation.EasingFunction>
+                        <PowerEase EasingMode="EaseOut" />
+                    </ThicknessAnimation.EasingFunction>
+                </ThicknessAnimation>
+            </Storyboard>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header with filters and search -->
+        <Grid Grid.Row="0"
+              Margin="10,10,10,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Titlu secțiune-->
+            <TextBlock Grid.Column="0"
+                       Text="Sarcinile Mele"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource TealBrush}"
+                       Margin="10,5,20,10"
+                       VerticalAlignment="Center" />
+
+            <!-- Căutare -->
+            <TextBox Grid.Column="1"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource SearchBoxStyle}">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Return"
+                                Command="{Binding SearchCommand}" />
+                </TextBox.InputBindings>
+            </TextBox>
+
+            <!-- Adaugă sarcină nouă -->
+            <Button Grid.Column="2"
+                    Content="+ Adaugă sarcină"
+                    Style="{StaticResource ActionButtonStyle}"
+                    Command="{Binding CreateTaskCommand}" />
+        </Grid>
+
+        <!-- Filtre -->
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    Margin="10,0,0,15"
+                    Height="38"
+                    VerticalAlignment="Top">
+            <TextBlock Text="Filtrare:"
+                       VerticalAlignment="Center"
+                       Margin="5,0"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource FilterLabelBrush}" />
+
+            <Button Content="Toate"
+                    Style="{StaticResource FilterButtonStyle}"
+                    IsEnabled="{Binding FilterStatus, Converter={StaticResource StatusZeroConverter}}"
+                    Command="{Binding FilterByStatusCommand}"
+                    CommandParameter="{x:Static models:TaskStatus.ToDo}" />
+
+            <Button Content="De făcut"
+                    Style="{StaticResource FilterButtonStyle}"
+                    IsEnabled="{Binding FilterStatus, Converter={StaticResource StatusToDoActiveConverter}}"
+                    Command="{Binding FilterByStatusCommand}"
+                    CommandParameter="{x:Static models:TaskStatus.ToDo}" />
+
+            <Button Content="În progres"
+                    Style="{StaticResource FilterButtonStyle}"
+                    IsEnabled="{Binding FilterStatus, Converter={StaticResource StatusInProgressActiveConverter}}"
+                    Command="{Binding FilterByStatusCommand}"
+                    CommandParameter="{x:Static models:TaskStatus.InProgress}" />
+
+            <Button Content="Finalizate"
+                    Style="{StaticResource FilterButtonStyle}"
+                    IsEnabled="{Binding FilterStatus, Converter={StaticResource StatusCompletedActiveConverter}}"
+                    Command="{Binding FilterByStatusCommand}"
+                    CommandParameter="{x:Static models:TaskStatus.Completed}" />
+
+            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
+                       Margin="5,2" />
+
+            <ComboBox Width="140"
+                      Margin="5,0"
+                      ItemsSource="{Binding Categories}"
+                      DisplayMemberPath="Name"
+                      SelectedValuePath="Id"
+                      SelectedValue="{Binding FilterCategoryId}"
+                      Height="38"
+                      VerticalAlignment="Center"
+                      Style="{StaticResource TaskComboBoxStyle}">
+                <ComboBox.ItemContainerStyle>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Left" />
+                    </Style>
+                </ComboBox.ItemContainerStyle>
+            </ComboBox>
+
+            <CheckBox Content="Arată finalizate"
+                      Margin="10,0"
+                      IsChecked="{Binding ShowCompletedTasks}"
+                      VerticalAlignment="Center"
+                      Foreground="{DynamicResource FilterLabelBrush}" />
+
+            <Button Content="Resetare filtre"
+                    Margin="5,0"
+                    Command="{Binding ClearFiltersCommand}"
+                    Style="{StaticResource CancelButtonStyle}"
+                    Height="38" />
+        </StackPanel>
+
+        <!-- Lista cu sarcini - Now takes full width -->
+        <ScrollViewer Grid.Row="1"
+                      Style="{StaticResource ZenTaskScrollViewerStyle}"
+                      VerticalScrollBarVisibility="Auto"
+                      Margin="0,53,0,0">
+            <ItemsControl ItemsSource="{Binding Tasks}"
+                          Margin="10,0,10,10">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource TaskCardStyle}"
+                                util:BorderExtension.BorderLeft="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
+                                util:BorderExtension.BorderLeftThickness="4">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <!-- Header cu titlu și butoane de acțiune -->
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Title}"
+                                               FontWeight="SemiBold"
+                                               FontSize="17"
+                                               Foreground="{StaticResource TextBrush}"
+                                               TextTrimming="CharacterEllipsis" />
+
+                                    <StackPanel Grid.Column="1"
+                                                Orientation="Horizontal">
+                                        <Button Content="✓"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                Foreground="{StaticResource SuccessBrush}"
+                                                Command="{Binding DataContext.CompleteTaskCommand, 
+                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding Id}"
+                                                ToolTip="Marchează ca finalizat"
+                                                Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}}" />
+
+                                        <Button Content="✎"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                Foreground="{StaticResource TealBrush}"
+                                                Command="{Binding DataContext.EditTaskCommand, 
+                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                ToolTip="Editează sarcina" />
+
+                                        <Button Content="✕"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                Foreground="{StaticResource ErrorBrush}"
+                                                Command="{Binding DataContext.DeleteTaskCommand, 
+                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding Id}"
+                                                ToolTip="Șterge sarcina" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Rest of the task card content - identical to your original -->
+                                <!-- Informații despre task -->
+                                <Grid Grid.Row="1"
+                                      Margin="0,12,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Descriere -->
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Description}"
+                                               TextWrapping="Wrap"
+                                               MaxHeight="80"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Margin="0,0,10,0" />
+
+                                    <!-- Status și Date -->
+                                    <StackPanel Grid.Column="1"
+                                                MinWidth="110">
+                                        <!-- Status -->
+                                        <Border Background="{Binding Status, Converter={StaticResource StatusToBrushConverter}}"
+                                                CornerRadius="14"
+                                                Padding="12,5"
+                                                Margin="0,0,0,10">
+                                            <TextBlock Text="{Binding Status, Converter={StaticResource StatusToStringConverter}}"
+                                                       Foreground="{StaticResource TextBrush}"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold" />
+                                        </Border>
+
+                                        <!-- Data scadentă -->
+                                        <TextBlock Text="{Binding DueDate, StringFormat='📅  {0:d MMMM}'}"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   FontSize="13"
+                                                   Margin="0,2"
+                                                   Visibility="{Binding DueDate, Converter={StaticResource NullToVisibilityConverter}}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Sub-sarcini -->
+                                <ItemsControl Grid.Row="2"
+                                              ItemsSource="{Binding SubTasks}"
+                                              ItemTemplate="{StaticResource SubTaskTemplate}"
+                                              Margin="0,12,0,0"
+                                              Visibility="{Binding SubTasks.Count, Converter={StaticResource NumberToVisibilityConverter}}" />
+
+                                <!-- Etichete -->
+                                <ItemsControl Grid.Row="3"
+                                              ItemsSource="{Binding TagIds}"
+                                              Margin="0,12,0,0"
+                                              Visibility="{Binding TagIds.Count, Converter={StaticResource NumberToVisibilityConverter}}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource TagStyle}"
+                                                    Background="{Binding Converter={StaticResource TagIdToBrushConverter}, 
+                                                                ConverterParameter={RelativeSource AncestorType=UserControl}}">
+                                                <TextBlock Text="{Binding Converter={StaticResource TagIdToNameConverter}, 
+                                                                 ConverterParameter={RelativeSource AncestorType=UserControl}}"
+                                                           Foreground="{StaticResource TextBrush}"
+                                                           FontSize="12" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+
+                <!-- Stil pentru placeholder când nu există sarcini -->
+                <ItemsControl.Template>
+                    <ControlTemplate TargetType="ItemsControl">
+                        <Border Padding="10">
+                            <Grid>
+                                <ItemsPresenter />
+                                <Border Background="{StaticResource CardBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="10"
+                                        Padding="20"
+                                        MaxWidth="400"
+                                        Visibility="{Binding Tasks.Count, Converter={StaticResource NumberToVisibilityConverter}, ConverterParameter=invert}"
+                                        Margin="0,50,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Top">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="Nu există sarcini"
+                                                   Foreground="{StaticResource TealBrush}"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,0,0,10" />
+                                        <TextBlock Text="Adaugă o sarcină nouă pentru a începe!"
+                                                   Foreground="{StaticResource TextBrush}"
+                                                   FontSize="15"
+                                                   TextWrapping="Wrap"
+                                                   TextAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,0,0,15" />
+                                        <Button Content="+ Adaugă sarcină"
+                                                Style="{StaticResource ActionButtonStyle}"
+                                                Command="{Binding CreateTaskCommand}"
+                                                HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </ItemsControl.Template>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Indicator de încărcare cu animație -->
+        <Grid Grid.Row="0"
+              Grid.RowSpan="2"
+              Background="#80000000"
+              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}">
+            <Border Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="25"
+                    MaxWidth="280"
+                    MaxHeight="180"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    RenderTransformOrigin="0.5,0.5">
+                <Border.RenderTransform>
+                    <ScaleTransform ScaleX="0"
+                                    ScaleY="0" />
+                </Border.RenderTransform>
+                <Border.Triggers>
+                    <EventTrigger RoutedEvent="Border.Loaded">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                 From="0.8"
+                                                 To="1"
+                                                 Duration="0:0:0.3">
+                                    <DoubleAnimation.EasingFunction>
+                                        <BackEase EasingMode="EaseOut"
+                                                  Amplitude="0.5" />
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                 From="0.8"
+                                                 To="1"
+                                                 Duration="0:0:0.3">
+                                    <DoubleAnimation.EasingFunction>
+                                        <BackEase EasingMode="EaseOut"
+                                                  Amplitude="0.5" />
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Border.Triggers>
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="Se încarcă..."
+                               Foreground="{StaticResource TealBrush}"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Center" />
+
+                    <Grid Width="120"
+                          Height="120"
+                          Margin="0,20,0,0">
+                        <Ellipse x:Name="LoadingSpinner"
+                                 Width="120"
+                                 Height="120"
+                                 StrokeThickness="5"
+                                 Stroke="{StaticResource TealBrush}"
+                                 RenderTransformOrigin="0.5,0.5">
+                            <Ellipse.RenderTransform>
+                                <RotateTransform Angle="0" />
+                            </Ellipse.RenderTransform>
+                            <Ellipse.Triggers>
+                                <EventTrigger RoutedEvent="Ellipse.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                             From="0"
+                                                             To="360"
+                                                             Duration="0:0:2"
+                                                             RepeatBehavior="Forever" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Ellipse.Triggers>
+                        </Ellipse>
+                        <Ellipse Width="110"
+                                 Height="110"
+                                 Fill="{StaticResource SurfaceBrush}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Mesaj de eroare cu animație -->
+        <Border Grid.Row="0"
+                Grid.RowSpan="2"
+                Background="#80000000"
+                Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}">
+            <Border Background="#3C1C1C"
+                    BorderBrush="{StaticResource ErrorBrush}"
+                    BorderThickness="1.5"
+                    CornerRadius="12"
+                    Padding="25"
+                    MaxWidth="400"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    RenderTransformOrigin="0.5,0.5">
+                <Border.RenderTransform>
+                    <ScaleTransform ScaleX="0"
+                                    ScaleY="0" />
+                </Border.RenderTransform>
+                <Border.Triggers>
+                    <EventTrigger RoutedEvent="Border.Loaded">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                 From="0.8"
+                                                 To="1"
+                                                 Duration="0:0:0.3">
+                                    <DoubleAnimation.EasingFunction>
+                                        <BackEase EasingMode="EaseOut"
+                                                  Amplitude="0.5" />
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                 From="0.8"
+                                                 To="1"
+                                                 Duration="0:0:0.3">
+                                    <DoubleAnimation.EasingFunction>
+                                        <BackEase EasingMode="EaseOut"
+                                                  Amplitude="0.5" />
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Border.Triggers>
+                <StackPanel>
+                    <TextBlock Text="Eroare"
+                               Foreground="{StaticResource ErrorBrush}"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="{StaticResource TextBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,15,0,0"
+                               FontSize="15"
+                               LineHeight="22" />
+                    <Button Content="Închide"
+                            Width="110"
+                            Height="40"
+                            Margin="0,20,0,0"
+                            HorizontalAlignment="Center"
+                            Command="{Binding ClearErrorCommand}"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Background="{StaticResource ErrorBrush}" />
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

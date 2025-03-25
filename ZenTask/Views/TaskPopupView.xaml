@@ -1,0 +1,459 @@
+﻿<UserControl x:Class="ZenTask.Views.TaskPopupView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ZenTask.Views"
+             xmlns:converters="clr-namespace:ZenTask.Utils.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="500">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <Style x:Key="TaskInputStyle" TargetType="TextBox">
+                <Setter Property="Padding" Value="12,8"/>
+                <Setter Property="Margin" Value="0,0,0,15"/>
+                <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                   BorderBrush="{TemplateBinding BorderBrush}" 
+                                   BorderThickness="{TemplateBinding BorderThickness}" 
+                                   CornerRadius="6">
+                                <ScrollViewer x:Name="PART_ContentHost" Padding="{TemplateBinding Padding}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource TealBrush}"/>
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource TealBrush}"/>
+                                    <Setter TargetName="border" Property="BorderThickness" Value="1.5"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Stil pentru DatePicker -->
+            <Style x:Key="TaskDatePickerStyle" TargetType="DatePicker">
+                <Setter Property="Padding" Value="10,5"/>
+                <Setter Property="Height" Value="40"/>
+                <Setter Property="Margin" Value="0,0,0,15"/>
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="Foreground" Value="#333333"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Language" Value="ro-RO"/>
+            </Style>
+
+            <!-- Stiluri pentru butoane -->
+            <Style x:Key="ActionButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{DynamicResource TealBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Height" Value="40"/>
+                <Setter Property="Padding" Value="20,0"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                   BorderBrush="{TemplateBinding BorderBrush}" 
+                                   BorderThickness="{TemplateBinding BorderThickness}" 
+                                   CornerRadius="20"
+                                   Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                 VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource GreenBrush}"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource PurpleBrush}"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource DisabledBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Stiluri pentru cancelButton -->
+            <Style x:Key="CancelButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+                <Setter Property="Background" Value="#555555"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+            </Style>
+
+            <!-- Simplify animations - just use one approach -->
+            <Storyboard x:Key="PopupEnterAnimation">
+                <DoubleAnimation 
+                    Storyboard.TargetProperty="Opacity"
+                    From="0" To="1" 
+                    Duration="0:0:0.3">
+                    <DoubleAnimation.EasingFunction>
+                        <PowerEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+
+                <DoubleAnimation 
+                    Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                    From="0.9" To="1" 
+                    Duration="0:0:0.3">
+                    <DoubleAnimation.EasingFunction>
+                        <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+
+                <DoubleAnimation 
+                    Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                    From="0.9" To="1" 
+                    Duration="0:0:0.3">
+                    <DoubleAnimation.EasingFunction>
+                        <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
+
+            <Storyboard x:Key="PopupExitAnimation">
+                <DoubleAnimation 
+                    Storyboard.TargetProperty="Opacity"
+                    From="1" To="0" 
+                    Duration="0:0:0.2">
+                    <DoubleAnimation.EasingFunction>
+                        <PowerEase EasingMode="EaseIn"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+
+                <DoubleAnimation 
+                    Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                    From="1" To="0.9" 
+                    Duration="0:0:0.2">
+                    <DoubleAnimation.EasingFunction>
+                        <PowerEase EasingMode="EaseIn"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+
+                <DoubleAnimation 
+                    Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                    From="1" To="0.9" 
+                    Duration="0:0:0.2">
+                    <DoubleAnimation.EasingFunction>
+                        <PowerEase EasingMode="EaseIn"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border Background="White" 
+            BorderBrush="#DDDDDD"
+            BorderThickness="1"
+            CornerRadius="10"
+            Effect="{DynamicResource DefaultShadowEffect}"
+            RenderTransformOrigin="0.5, 0.5"
+            MaxWidth="550"
+            MaxHeight="{Binding MaxHeight, RelativeSource={RelativeSource AncestorType=local:TaskPopupView}}">
+        <Border.RenderTransform>
+            <ScaleTransform ScaleX="1" ScaleY="1" />
+        </Border.RenderTransform>
+        <!-- Trigger animation when popup becomes visible -->
+        <Border.Triggers>
+            <EventTrigger RoutedEvent="Border.Loaded">
+                <BeginStoryboard Storyboard="{StaticResource PopupEnterAnimation}"/>
+            </EventTrigger>
+        </Border.Triggers>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" 
+                   Background="{DynamicResource TealBrush}" 
+                   CornerRadius="10,10,0,0"
+                   Padding="20,15">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                              Text="{Binding IsEditMode, Converter={StaticResource EditModeTitleConverter}}"
+                              FontSize="22" 
+                              FontWeight="Bold"
+                              Foreground="White"/>
+
+                    <Button Grid.Column="1" 
+                           Command="{Binding ClosePopupCommand}"
+                           Content="✕"
+                           Background="Transparent"
+                           Foreground="White"
+                           BorderThickness="0"
+                           FontSize="16"
+                           Width="30" Height="30"
+                           Padding="0"
+                           VerticalAlignment="Top"
+                           HorizontalAlignment="Right">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" 
+                                       Background="{TemplateBinding Background}"
+                                       CornerRadius="15"
+                                       Width="30" Height="30">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#40FFFFFF"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#70FFFFFF"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Conținut formular -->
+            <ScrollViewer Grid.Row="1" 
+                         Style="{StaticResource ZenTaskScrollViewerStyle}"
+                         VerticalScrollBarVisibility="Auto"
+                         Padding="20"
+                         CanContentScroll="True">
+                <StackPanel>
+                    <!-- Titlu -->
+                    <TextBlock Text="Titlu" Margin="0,0,0,8" FontWeight="SemiBold" Foreground="#333333"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Title input with validation styling -->
+                        <Border Grid.Row="0" 
+            BorderBrush="{Binding HasTitleError, Converter={StaticResource BoolToErrorBrushConverter}, FallbackValue=#DDDDDD}"
+            BorderThickness="{Binding HasTitleError, Converter={StaticResource BoolToThicknessConverter}, FallbackValue=1}"
+            CornerRadius="6">
+                            <TextBox x:Name="TitleTextBox" 
+                Text="{Binding TaskTitle, UpdateSourceTrigger=PropertyChanged}"
+                Style="{StaticResource TaskInputStyle}" 
+                Background="White" 
+                Foreground="#333333"
+                BorderThickness="0"/>
+                        </Border>
+
+                        <!-- Error message -->
+                        <TextBlock Grid.Row="1"
+               Text="{Binding TitleError}" 
+               Foreground="#FF4040"
+               FontSize="12"
+               Margin="5,2,0,5"
+               Visibility="{Binding HasTitleError, Converter={StaticResource BoolToVisibility}}"/>
+                    </Grid>
+
+                    <!-- Descriere -->
+                    <TextBlock Text="Descriere" Margin="0,0,0,8" FontWeight="SemiBold" Foreground="#333333"/>
+                    <TextBox Text="{Binding TaskDescription, UpdateSourceTrigger=PropertyChanged}"
+                            Style="{StaticResource TaskInputStyle}" Background="White" Foreground="#333333"
+                            TextWrapping="Wrap" AcceptsReturn="True"
+                            Height="100" VerticalScrollBarVisibility="Auto"/>
+
+                    <!-- Data scadentă -->
+                    <TextBlock Text="Data scadentă" Margin="0,0,0,8" FontWeight="SemiBold" Foreground="#333333"/>
+                    <DatePicker SelectedDate="{Binding TaskDueDate}"
+                              Style="{StaticResource TaskDatePickerStyle}"/>
+
+                    <!-- Prioritate -->
+                    <TextBlock Text="Prioritate" Margin="0,0,0,8" FontWeight="SemiBold" Foreground="#333333"/>
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <RadioButton x:Name="PriorityLow" Grid.Column="0" Content="Scăzută" GroupName="Priority" 
+                                    IsChecked="{Binding TaskPriority, Converter={StaticResource PriorityToIsCheckedConverter}, ConverterParameter=Low}"
+                                    Tag="Low" Foreground="#333333"
+                                    Margin="3" Padding="5,0"/>
+
+                        <RadioButton x:Name="PriorityMedium" Grid.Column="1" Content="Medie" GroupName="Priority" 
+                                    IsChecked="{Binding TaskPriority, Converter={StaticResource PriorityToIsCheckedConverter}, ConverterParameter=Medium}"
+                                    Tag="Medium" Foreground="#333333"
+                                    Margin="3" Padding="5,0"/>
+
+                        <RadioButton x:Name="PriorityHigh" Grid.Column="2" Content="Înaltă" GroupName="Priority" 
+                                    IsChecked="{Binding TaskPriority, Converter={StaticResource PriorityToIsCheckedConverter}, ConverterParameter=High}"
+                                    Tag="High" Foreground="#333333"
+                                    Margin="3" Padding="5,0"/>
+
+                        <RadioButton x:Name="PriorityUrgent" Grid.Column="3" Content="Urgentă" GroupName="Priority" 
+                                    IsChecked="{Binding TaskPriority, Converter={StaticResource PriorityToIsCheckedConverter}, ConverterParameter=Urgent}"
+                                    Tag="Urgent" Foreground="#333333"
+                                    Margin="3" Padding="5,0"/>
+                    </Grid>
+
+                    <!-- Categorie - Using the custom ZenTaskCategoryComboBox style -->
+                    <TextBlock Text="Categorie" Margin="0,0,0,8" FontWeight="SemiBold" Foreground="#333333"/>
+                    <ComboBox ItemsSource="{Binding Categories}"
+                            DisplayMemberPath="Name"
+                            SelectedValuePath="Id"
+                            SelectedValue="{Binding TaskCategoryId}"
+                            Margin="0,0,0,15"
+                            Style="{StaticResource ZenTaskComboBoxLight}"
+                            ItemContainerStyle="{StaticResource ZenTaskComboBoxItemLight}"/>
+
+                    <!-- Sub-sarcini -->
+                    <Grid Margin="0,10,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Sub-sarcini" Grid.Column="0" FontWeight="SemiBold" Foreground="#333333"/>
+                        <Button Grid.Column="1" 
+                               Command="{Binding AddSubTaskCommand}"
+                               Style="{StaticResource ActionButtonStyle}"
+                               Height="32" Width="140" Padding="5,2">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="+" FontSize="16" Margin="0,0,5,0"/>
+                                <TextBlock Text="Adaugă sub-sarcină" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <!-- Lista de sub-sarcini -->
+                    <Border Background="White" 
+                           BorderBrush="#DDDDDD" 
+                           BorderThickness="1" 
+                           CornerRadius="6" 
+                           Padding="12"
+                           Margin="0,5,0,15"
+                           MinHeight="100">
+                        <ItemsControl ItemsSource="{Binding TaskSubTasks}">
+                            <ItemsControl.Template>
+                                <ControlTemplate TargetType="ItemsControl">
+                                    <Border Padding="2">
+                                        <Grid>
+                                            <ItemsPresenter />
+                                            <TextBlock 
+                                                Text="Nicio sub-sarcină. Apasă + pentru a adăuga." 
+                                                Foreground="#777777"
+                                                HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center"
+                                                Visibility="{Binding TaskSubTasks.Count, Converter={StaticResource NumberToVisibilityConverter}, ConverterParameter=invert}" />
+                                        </Grid>
+                                    </Border>
+                                </ControlTemplate>
+                            </ItemsControl.Template>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <CheckBox Grid.Column="0" IsChecked="{Binding IsCompleted}" 
+                                                VerticalAlignment="Center" Margin="0,0,10,0"
+                                                Command="{Binding DataContext.ToggleSubTaskCommand, 
+                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding Id}"/>
+
+                                        <TextBox Grid.Column="1" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" 
+                                                BorderThickness="0" Background="Transparent" Padding="0"
+                                                TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToStrikethrough}}"/>
+
+                                        <Button Grid.Column="2" Content="✕" 
+                                                Command="{Binding DataContext.RemoveSubTaskCommand, 
+                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding DisplayOrder}"
+                                                Background="Transparent" 
+                                                BorderThickness="0" 
+                                                Foreground="#999999"
+                                                Width="30" Height="30"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+
+                    <!-- Etichete -->
+                    <TextBlock Text="Etichete" Margin="0,0,0,8" FontWeight="SemiBold" Foreground="#333333"/>
+                    <Border Background="White" 
+                           BorderBrush="#DDDDDD" 
+                           BorderThickness="1" 
+                           CornerRadius="6" 
+                           Padding="12"
+                           Margin="0,5,0,20"
+                           MinHeight="100">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Tags}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding Name}" 
+                                                IsChecked="{Binding Id, Converter={StaticResource TagIdToIsSelectedConverter}, ConverterParameter={RelativeSource AncestorType=UserControl}}"
+                                                Command="{Binding DataContext.ToggleTagCommand, 
+                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding Id}"
+                                                Margin="0,5"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.Template>
+                                    <ControlTemplate TargetType="ItemsControl">
+                                        <Border Padding="2">
+                                            <Grid>
+                                                <ItemsPresenter />
+                                                <TextBlock 
+                                                    Text="Nicio etichetă disponibilă." 
+                                                    Foreground="#777777"
+                                                    HorizontalAlignment="Center" 
+                                                    VerticalAlignment="Center"
+                                                    Visibility="{Binding Tags.Count, Converter={StaticResource NumberToVisibilityConverter}, ConverterParameter=invert}" />
+                                            </Grid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ItemsControl.Template>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Footer cu butoane -->
+            <Border Grid.Row="2" Background="{DynamicResource TealBrush}" CornerRadius="0,0,10,10">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,15">
+                    <Button Content="Anulează" Width="120" Height="42" Margin="0,0,15,0"
+                           Command="{Binding ClosePopupCommand}"
+                           Style="{StaticResource CancelButtonStyle}"/>
+
+                    <Button Content="{Binding IsEditMode, Converter={StaticResource EditModeButtonConverter}}"
+                           Width="120" Height="42"
+                           Command="{Binding SaveTaskCommand}"
+                           Style="{StaticResource ActionButtonStyle}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>
